@@ -26,12 +26,12 @@ FFMPEG_WEBM_PC_PATH_ = \
 	../opus/dist/lib/pkgconfig
 FFMPEG_WEBM_PC_PATH = $(subst : ,:,$(FFMPEG_WEBM_PC_PATH_))
 LIBASS_DEPS = \
-	build/fribidi/dist/lib/libfribidi.so \
-	build/freetype/dist/lib/libfreetype.so
+	build/fribidi/dist/lib/libfribidi.a \
+	build/freetype/dist/lib/libfreetype.a
 WEBM_SHARED_DEPS = \
 	$(LIBASS_DEPS) \
-	build/libass/dist/lib/libass.so \
-	build/opus/dist/lib/libopus.so \
+	build/libass/dist/lib/libass.a \
+	build/opus/dist/lib/libopus.a \
 	build/libvpx/dist/lib/libvpx.so
 
 MP4_MUXERS = mp4 mp3 null
@@ -39,7 +39,7 @@ MP4_ENCODERS = libx264 libmp3lame aac
 FFMPEG_MP4_BC = build/ffmpeg-mp4/ffmpeg.bc
 FFMPEG_MP4_PC_PATH = ../x264/dist/lib/pkgconfig
 MP4_SHARED_DEPS = \
-	build/lame/dist/lib/libmp3lame.so \
+	build/lame/dist/lib/libmp3lame.a \
 	build/x264/dist/lib/libx264.so
 
 all: webm mp4
@@ -122,9 +122,11 @@ build/fribidi/dist/lib/libfribidi.so: build/fribidi/configure
 	git reset --hard && \
 	patch -p1 < ../fribidi-make.patch && \
 	emconfigure ./configure \
-		CFLAGS=-O3 \
+		CFLAGS="-O3" \
+               	CC=gcc \
 		NM=llvm-nm \
 		--prefix="$$(pwd)/dist" \
+                
 		--disable-dependency-tracking \
 		--disable-debug \
 		--without-glib \
@@ -252,7 +254,9 @@ FFMPEG_COMMON_ARGS = \
 	--disable-vdpau \
 	$(addprefix --enable-decoder=,$(COMMON_DECODERS)) \
 	$(addprefix --enable-demuxer=,$(COMMON_DEMUXERS)) \
-	--enable-protocol=file tcp udp \
+	--enable-protocol=file \
+        --enable-protocol=tcp \
+        --enable-protocol=udp \
 	$(addprefix --enable-filter=,$(COMMON_FILTERS)) \
 	--disable-bzlib \
 	--disable-iconv \
